@@ -1,0 +1,61 @@
+package $pkg;
+
+import $dao;
+import $domain;
+import com.enchantment.eaas.Utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.util.List;
+
+import static com.enchantment.eaas.Constants.OPER_N;
+import static com.enchantment.eaas.Constants.STAT_INIT;
+
+/**
+ * <p>$name operation service</p>
+ *
+ * Created by genbatis on $date.
+ */
+@Service
+public class $nameService {
+    private $nameDAO $lnameDAO;
+
+    @Autowired
+    public $nameService($nameDAO $lnameDAO) {
+        this.$lnameDAO = $lnameDAO;
+    }
+
+    public $name get$name(String id) {
+        return $lnameDAO.get(id);
+    }
+
+    public List<$name> get$names($name $lname) {
+        return $lnameDAO.getList($lname);
+    }
+
+    public boolean add$name($name $lname, final String cuid) {
+        $lname.setId(Utils.buildHashCode($lname));
+        $lname.setStatus(STAT_INIT);
+        $lname.setMdate(new Timestamp(System.currentTimeMillis()));
+        $lname.setMid(cuid);
+        $lname.setOtype(OPER_N);
+        return $lnameDAO.add($lname);
+    }
+
+    public boolean update$name($name $lname, final String cuid) {
+        $lname.setMid(cuid);
+        return $lnameDAO.update($lname);
+    }
+
+    public boolean remove$name(String id) {
+        return $lnameDAO.remove(id);
+    }
+
+    public boolean remove$names(List<String> ids) {
+        return $lnameDAO.remove(ids);
+    }
+}

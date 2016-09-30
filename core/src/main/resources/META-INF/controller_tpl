@@ -1,0 +1,135 @@
+package $pkg;
+
+import com.enchantment.eaas.domain.ResponseEntity;
+import $domain;
+import $service;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.utils.List;
+
+import static com.enchantment.eaas.Constants.RESPONSE_STATUS_FAL;
+import static com.enchantment.eaas.Constants.RESPONSE_STATUS_SUC;
+
+/**
+ * The controller that to handle the request about $lname entity.<br/>
+ *
+ * Created by genbatis on $date.
+ */
+@RestController
+@RequestMapping(value = "/$ver/$lname", produces = "application/json")
+public class $nameController {
+    private static final Logger L = LoggerFactory.getLogger($nameController.class);
+
+    private $nameService service;
+
+    @Autowired
+    public $nameController($nameService service) {
+        this.service = service;
+    }
+
+    /**
+     * Select one $lname information by $lname id
+     *
+     * @param id $lname identity
+     * @return $lname information
+     */
+    @RequestMapping(value = "/get/{id}",
+            method = {RequestMethod.POST, RequestMethod.GET})
+    public ResponseEntity get$name(@PathVariable("id") String id) {
+        L.debug("Get $lname, id = " + id);
+        $name re$name = service.get$name(id);
+        ResponseEntity entity = new ResponseEntity();
+
+        if (re$name != null) {
+            L.debug("Get successfully.");
+            entity.setStatus(RESPONSE_STATUS_SUC);
+            entity.setData(re$name);
+        } else {
+            L.debug("Get failed.");
+            entity.setStatus(RESPONSE_STATUS_FAL);
+        }
+
+        return entity;
+    }
+
+    /**
+     * Select $lname information by conditions
+     *
+     * @param id $lname identity
+     * @return $lname information
+     */
+    @RequestMapping(value = "/gets", method = RequestMethod.POST)
+    public ResponseEntity get$name($name $lname) {
+        L.debug("Get $lname " + $lname);
+        List<$name> re$names = service.get$names($lname);
+        ResponseEntity entity = new ResponseEntity();
+
+        if (re$names != null) {
+            entity.setStatus(RESPONSE_STATUS_SUC);
+            entity.setData(re$names);
+        } else {
+            entity.setStatus(RESPONSE_STATUS_FAL);
+        }
+
+        return entity;
+    }
+
+    /**
+     * Add one $lname into db
+     * <p>Request method is <code>PUT</code></p>
+     *
+     * @param $lname new $lname information
+     * @param cuid current $lname id
+     * @return Response entity which contains response data and status
+     */
+    @RequestMapping(value = "/add", method = RequestMethod.PUT)
+    public ResponseEntity $lnameAdd(@RequestBody $name $lname) {
+        ResponseEntity entity = new ResponseEntity();
+        if (service.add$name($lname, cuid)) {
+            entity.setStatus(RESPONSE_STATUS_SUC);
+        } else {
+            entity.setStatus(RESPONSE_STATUS_FAL);
+        }
+        return entity;
+    }
+
+    /**
+     * Update one $lname information
+     * <p>Request method is <code>PUT</code></p>
+     *
+     * @param $lname new $lname information for changing
+     * @return true if modify successfully, otherwise false
+     */
+    @RequestMapping(value = "/mod", method = RequestMethod.PUT)
+    public boolean $lnameMod($name $lname) {
+        return service.update$name($lname);
+    }
+
+    /**
+     * Delete one $lname from db
+     * <p>Request method is <code>DELETE</code></p>
+     *
+     * @param id $lname identity to be deleted
+     * @return true if delete successfully, otherwise false
+     */
+    @RequestMapping(value = "/del/{id}", method = RequestMethod.DELETE)
+    public boolean $lnameDel(@PathVariable("id") String id) {
+        return service.remove$name(id);
+    }
+
+    /**
+     * Delete $lname from db
+     * <p>Request method is <code>DELETE</code></p>
+     *
+     * @param ids $lname identitys to be deleted
+     * @return true if delete successfully, otherwise false
+     */
+    @RequestMapping(value = "/dels", method = RequestMethod.DELETE)
+    public boolean $lnameDel(List<String> ids) {
+        return service.remove$names(ids);
+    }
+}
