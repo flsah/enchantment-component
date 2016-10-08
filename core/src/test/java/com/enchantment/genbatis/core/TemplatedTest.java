@@ -1,7 +1,5 @@
 package com.enchantment.genbatis.core;
 
-import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,13 +9,12 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
 
 /**
- * Created by liushuang on 9/29/16.
+ * Created by liushuang on 10/8/16.
  */
-public class SimpleStorageTest {
-    private static final Logger L = LoggerFactory.getLogger(SimpleStorageTest.class);
+public class TemplatedTest {
+    private static final Logger L = LoggerFactory.getLogger(TemplatedTest.class);
 
     private Connection conn;
 
@@ -35,27 +32,6 @@ public class SimpleStorageTest {
         }
     }
 
-    @Test
-    public void getColsTest() {
-        SimpleStorage storage = new SimpleStorage(conn);
-        HashMap<String, String> cols = storage.getColumns(null, "t_user");
-        System.out.println(cols);
-    }
-
-//    @Test
-    public void getMultiColsTest() {
-        SimpleStorage storage = new SimpleStorage(conn);
-        HashMap<String, HashMap<String, String>> cols = storage
-                .getMultiCols(null, "t_user", "T_GROUP", "T_ROLE");
-        System.out.println(cols);
-
-        assertNotNull(cols);
-        assertEquals(cols.size(), 3);
-        assertTrue(cols.containsKey("t_user"));
-        assertTrue(cols.containsKey("T_GROUP"));
-        assertTrue(cols.containsKey("T_ROLE"));
-    }
-
     @After
     public void finalize() {
         try {
@@ -66,5 +42,36 @@ public class SimpleStorageTest {
         } catch (SQLException e) {
             L.error("Finalize error", e);
         }
+    }
+
+//    @Test
+    public void templatedServiceTest() {
+        Templated tpd = new Templated("eaas", "t_user");
+
+        String tpl = tpd.templatedService();
+        System.out.println(tpl);
+    }
+
+//    @Test
+    public void templatedControllerTest() {
+        Templated tpd = new Templated("eaas", "t_user");
+
+        String tpl = tpd.templatedController();
+        System.out.println(tpl);
+    }
+
+//    @Test
+    public void templatedDaoTest() {
+        Templated tpd = new Templated("eaas", "t_user");
+
+        String tpl = tpd.templatedDAO();
+        System.out.println(tpl);
+    }
+
+    @Test
+    public void templatedDomainTest() {
+        Templated tpd = new Templated("eaas", "t_user");
+        String tpl = tpd.templatedDomain(conn);
+        System.out.println(tpl);
     }
 }

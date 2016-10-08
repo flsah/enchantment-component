@@ -54,7 +54,7 @@ public class SimpleStorage {
             int count = meta.getColumnCount();
             HashMap<String, String> cols = new HashMap<>(count);
             for (int i = 1; i <= count; i++) {
-                cols.put(meta.getColumnName(i), meta.getColumnClassName(i));
+                cols.put(meta.getColumnName(i).toLowerCase(), meta.getColumnClassName(i));
             }
 
             return cols;
