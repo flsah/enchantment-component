@@ -11,9 +11,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Created by liushuang on 10/8/16.
+ * Created by liushuang on 10/9/16.
  */
-public class TemplatedTest {
+public class GeneratorTest {
     private static final Logger L = LoggerFactory.getLogger(TemplatedTest.class);
 
     private Connection conn;
@@ -37,7 +37,6 @@ public class TemplatedTest {
         info.setSchema("eaas");
         info.setTable("t_group");
         info.setTablePrefix("t_");
-        info.setMapperPkg("resouces.mapper");
 
     }
 
@@ -52,42 +51,13 @@ public class TemplatedTest {
             L.error("Finalize error", e);
         }
     }
-
-//    @Test
-    public void templatedServiceTest() {
-        Templated tpd = new Templated(info);
-
-        String tpl = tpd.templatedService();
-        System.out.println(tpl);
-    }
-
-//    @Test
-    public void templatedControllerTest() {
-        Templated tpd = new Templated(info);
-
-        String tpl = tpd.templatedController();
-        System.out.println(tpl);
-    }
-
-//    @Test
-    public void templatedDaoTest() {
-        Templated tpd = new Templated(info);
-
-        String tpl = tpd.templatedDAO();
-        System.out.println(tpl);
-    }
-
-//    @Test
-    public void templatedDomainTest() {
-        Templated tpd = new Templated(info);
-        String tpl = tpd.templatedDomain(conn);
-        System.out.println(tpl);
-    }
-
     @Test
-    public void templatedXmlMapperTest() {
-        Templated tpd = new Templated(info);
-        String tpl = tpd.templatedXmlMapper(conn);
-        System.out.println(tpl);
+    public void genTest() {
+        Generator g = new Generator(info);
+        try {
+            g.gen();
+        } catch (GenbatisException e) {
+            e.printStackTrace();
+        }
     }
 }

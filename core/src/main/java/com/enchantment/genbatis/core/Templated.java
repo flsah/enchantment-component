@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import static com.enchantment.genbatis.core.Templated.TYPE.*;
+import static com.enchantment.genbatis.core.Generator.TYPE.*;
 
 /**
  * <p>Generate code with templates.</p>
@@ -33,7 +33,7 @@ class Templated {
     }
 
     String templatedService() {
-        String serviceTpl = Template.getServiceTemplate()
+        return Template.getServiceTemplate()
                 // insert package path
                 .replaceFirst("\\$pkg", getPackage(SER))
                 // insert dao import
@@ -48,12 +48,10 @@ class Templated {
                 .replaceFirst("\\$date", currentTime())
                 // insert lower case name
                 .replaceAll("\\$lname", info.getName());
-
-        return serviceTpl;
     }
 
     String templatedController() {
-        String controllerTpl = Template.getControllerTemplate()
+        return Template.getControllerTemplate()
                 // insert package path
                 .replaceFirst("\\$pkg", getPackage(CON))
                 // insert service import
@@ -68,12 +66,10 @@ class Templated {
                 .replaceFirst("\\$date", currentTime())
                 // insert lower case name
                 .replaceAll("\\$lname", info.getName());
-
-        return controllerTpl;
     }
 
     String templatedDAO() {
-        String daoTpl = Template.getDAOTemplate()
+        return Template.getDAOTemplate()
                 // insert package path
                 .replaceFirst("\\$pkg", getPackage(DAO))
                 // insert domain import
@@ -85,8 +81,6 @@ class Templated {
                 .replaceFirst("\\$date", currentTime())
                 // insert lower case name
                 .replaceAll("\\$lname", info.getName());
-
-        return daoTpl;
     }
 
     private LinkedHashMap<String, String> cols;
@@ -123,7 +117,7 @@ class Templated {
         StringBuffer ims = new StringBuffer();
         imports.forEach(im -> ims.append(im));
 
-        String domain = Template.getDomainTemplate()
+        return Template.getDomainTemplate()
                 // insert imports
                 .replaceFirst("\\$import\n", ims.toString())
                 // insert package path
@@ -136,8 +130,6 @@ class Templated {
                 .replaceAll("\\$name", upperName(info.getName()))
                 // insert current time
                 .replaceFirst("\\$date", currentTime());
-
-        return domain;
     }
 
     String templatedXmlMapper(Connection conn) {
@@ -158,7 +150,7 @@ class Templated {
                     .append("=#{").append(col).append("},\n");
         });
 
-        String mapper = Template.getXmlMapperTemplate()
+        return Template.getXmlMapperTemplate()
                 // insert class name
                 .replaceAll("\\$name", upperName(info.getName()))
                 // insert lower case name
@@ -171,10 +163,9 @@ class Templated {
                 .replaceAll("\\$cols", columns.toString().replaceFirst(",$", ""))
                 .replaceAll("\\$insert", insert.toString().replaceFirst(",$", ""))
                 .replaceAll(" *\\$update\n", update.toString().replaceFirst(",$", ""));
-        return mapper;
     }
 
-    private String getPackage(TYPE type) {
+    private String getPackage(Generator.TYPE type) {
         String pkg = info.getBasePackage();
         if (pkg == null)
             pkg = "";
@@ -208,14 +199,6 @@ class Templated {
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private String currentTime() {
         return DT_FMT.format(new Date());
-    }
-
-    enum TYPE {
-        SER, // service
-        CON, // controller
-        DAO, // dao
-        DMA, // persistence
-        MAP  // mapper
     }
 
     private static class Template {

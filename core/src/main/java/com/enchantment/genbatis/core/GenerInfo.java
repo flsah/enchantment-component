@@ -127,8 +127,7 @@ public class GenerInfo {
     }
 
     /**
-     * Mapper classes package. If mapper type is <code>XML</code>,
-     * this field will not work.<br/>
+     * Mapper classes package.<br/>
      * If <code>basePackage</code> is not indicated,
      * this field should be full package path.
      *
