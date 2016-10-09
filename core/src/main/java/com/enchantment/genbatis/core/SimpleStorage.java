@@ -4,23 +4,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * <p>Data storage util class</p>
  *
  * Created by liushuang on 9/29/16.
  */
-public class SimpleStorage {
+class SimpleStorage {
     private static final Logger L = LoggerFactory.getLogger(SimpleStorage.class);
 
-    protected static final String GET_SQL = "select * from $tab where 1<0";
+    private static final String GET_SQL = "select * from $tab where 1<0";
 
     private Connection conn;
 
-    public SimpleStorage(Connection conn) {
+    SimpleStorage(Connection conn) {
         this.conn = conn;
     }
 
@@ -34,7 +39,7 @@ public class SimpleStorage {
      * @param table
      * @return
      */
-    public HashMap<String, String> getColumns(final String schema, final String table) {
+    LinkedHashMap<String, String> getColumns(final String schema, final String table) {
         String tab = table;
         if (schema != null && !schema.equals("")) {
             tab = schema.concat(".").concat(table);
@@ -52,7 +57,7 @@ public class SimpleStorage {
             ResultSetMetaData meta = result.getMetaData();
 
             int count = meta.getColumnCount();
-            HashMap<String, String> cols = new HashMap<>(count);
+            LinkedHashMap<String, String> cols = new LinkedHashMap<>(count);
             for (int i = 1; i <= count; i++) {
                 cols.put(meta.getColumnName(i).toLowerCase(), meta.getColumnClassName(i));
             }
@@ -64,9 +69,9 @@ public class SimpleStorage {
         }
     }
 
-    public HashMap<String, HashMap<String, String>> getMultiCols(
+    LinkedHashMap<String, HashMap<String, String>> getMultiCols(
             final String schema, final String... tables) {
-        HashMap<String, HashMap<String, String>> multiCols = new HashMap<>(tables.length);
+        LinkedHashMap<String, HashMap<String, String>> multiCols = new LinkedHashMap<>(tables.length);
         Arrays.stream(tables)
                 .map(tab -> multiCols.put(tab, getColumns(schema, tab)))
                 .count();

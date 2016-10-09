@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.$nameMapper">
+    <sql id="$lname-columns">$cols</sql>
+
+    <select id="get$nameById" resultType="$domain">
+        select <include refid="$lname-columns"></include>
+        from $table where id=#{id}
+    </select>
+
+    <select id="get$names" resultType="$domain">
+        select <include refid="$lname-columns"></include>
+        from $table
+        <where>
+            <!-- self define -->
+        </where>
+    </select>
+
+    <insert id="add$name" parameterType="$domain">
+        insert into $table
+        (<include refid="$lname-columns"></include>)
+        values ($insert)
+    </insert>
+
+    <update id="mod$name">
+        update $table set
+            $update
+        where id=#{id}
+    </update>
+
+    <delete id="del$name">
+        delete from $table where id=#{id}
+    </delete>
+
+    <delete id="del$names">
+        delete from $table where id in
+        <foreach item="ids" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{ids}
+        </foreach>
+    </delete>
+</mapper>

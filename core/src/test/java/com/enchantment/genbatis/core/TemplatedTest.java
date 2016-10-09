@@ -17,6 +17,7 @@ public class TemplatedTest {
     private static final Logger L = LoggerFactory.getLogger(TemplatedTest.class);
 
     private Connection conn;
+    private GenerInfo info;
 
     @Before
     public void init() {
@@ -30,6 +31,13 @@ public class TemplatedTest {
         } catch (Exception e) {
             L.error("Initialize error", e);
         }
+
+        info = new GenerInfo();
+        info.setBasePackage("com.enchanment.test");
+        info.setSchema("eaas");
+        info.setTable("t_group");
+        info.setTablePrefix("t_");
+
     }
 
     @After
@@ -46,7 +54,7 @@ public class TemplatedTest {
 
 //    @Test
     public void templatedServiceTest() {
-        Templated tpd = new Templated("eaas", "t_user");
+        Templated tpd = new Templated(info);
 
         String tpl = tpd.templatedService();
         System.out.println(tpl);
@@ -54,7 +62,7 @@ public class TemplatedTest {
 
 //    @Test
     public void templatedControllerTest() {
-        Templated tpd = new Templated("eaas", "t_user");
+        Templated tpd = new Templated(info);
 
         String tpl = tpd.templatedController();
         System.out.println(tpl);
@@ -62,16 +70,23 @@ public class TemplatedTest {
 
 //    @Test
     public void templatedDaoTest() {
-        Templated tpd = new Templated("eaas", "t_user");
+        Templated tpd = new Templated(info);
 
         String tpl = tpd.templatedDAO();
         System.out.println(tpl);
     }
 
-    @Test
+//    @Test
     public void templatedDomainTest() {
-        Templated tpd = new Templated("eaas", "t_user");
+        Templated tpd = new Templated(info);
         String tpl = tpd.templatedDomain(conn);
+        System.out.println(tpl);
+    }
+
+    @Test
+    public void templatedXmlMapperTest() {
+        Templated tpd = new Templated(info);
+        String tpl = tpd.templatedXmlMapper(conn);
         System.out.println(tpl);
     }
 }

@@ -1,0 +1,14 @@
+package $pkg;
+
+$import
+
+/**
+ * $name entity
+ *
+ * Created by genbatis on $date.
+ */
+public class $name {
+    $field
+
+    $get&set
+}

@@ -3,45 +3,99 @@ package com.enchantment.genbatis.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.sql.Connection;
-import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Vector;
+
+import static com.enchantment.genbatis.core.Templated.TYPE.*;
 
 /**
+ * <p>Generate code with templates.</p>
+ * This class can generate code of controllers, services, daoes,
+ * persistence entities and MyBatis mappers (include xml configuration
+ * and java class with annotation).
+ *
  * Created by liushuang on 9/30/16.
  */
-public class Templated {
+class Templated {
     private static final Logger L = LoggerFactory.getLogger(Templated.class);
 
-    private String schema;
-    private String table;
+    private GenerInfo info;
 
-    public Templated(String schema, String table) {
-        this.schema = schema;
-        this.table = table;
+    Templated(GenerInfo info) {
+        this.info = info;
     }
 
-    public String templatedService() {
-        final String serviceTpl = Template.getServiceTemplate();
+    String templatedService() {
+        String serviceTpl = Template.getServiceTemplate()
+                // insert package path
+                .replaceFirst("\\$pkg", getPackage(SER))
+                // insert dao import
+                .replaceFirst("\\$dao", getPackage(DAO).concat(".")
+                        .concat(upperName(info.getName())).concat("DAO"))
+                // insert domain import
+                .replaceFirst("\\$domain", getPackage(DMA).concat(".")
+                        .concat(upperName(info.getName())))
+                // insert class name
+                .replaceAll("\\$name", upperName(info.getName()))
+                // insert current time
+                .replaceFirst("\\$date", currentTime())
+                // insert lower case name
+                .replaceAll("\\$lname", info.getName());
 
         return serviceTpl;
     }
 
-    public String templatedController() {
-        final String controllerTpl = Template.getControllerTemplate();
+    String templatedController() {
+        String controllerTpl = Template.getControllerTemplate()
+                // insert package path
+                .replaceFirst("\\$pkg", getPackage(CON))
+                // insert service import
+                .replaceFirst("\\$service", getPackage(SER).concat(".")
+                        .concat(upperName(info.getName())).concat("Service"))
+                // insert domain import
+                .replaceFirst("\\$domain", getPackage(DMA).concat(".")
+                        .concat(upperName(info.getName())))
+                // insert class name
+                .replaceAll("\\$name", upperName(info.getName()))
+                // insert current time
+                .replaceFirst("\\$date", currentTime())
+                // insert lower case name
+                .replaceAll("\\$lname", info.getName());
 
         return controllerTpl;
     }
 
-    public String templatedDAO() {
-        final String daoTpl = Template.getDAOTemplate();
+    String templatedDAO() {
+        String daoTpl = Template.getDAOTemplate()
+                // insert package path
+                .replaceFirst("\\$pkg", getPackage(DAO))
+                // insert domain import
+                .replaceFirst("\\$domain", getPackage(DMA).concat(".")
+                        .concat(upperName(info.getName())))
+                // insert class name
+                .replaceAll("\\$name", upperName(info.getName()))
+                // insert current time
+                .replaceFirst("\\$date", currentTime())
+                // insert lower case name
+                .replaceAll("\\$lname", info.getName());
 
         return daoTpl;
     }
 
-    public String templatedDomain(Connection conn) {
-        SimpleStorage storage = new SimpleStorage(conn);
-        HashMap<String, String> cols = storage.getColumns(schema, table);
+    private LinkedHashMap<String, String> cols;
+
+    String templatedDomain(Connection conn) {
+        if (cols == null) {
+            SimpleStorage storage = new SimpleStorage(conn);
+            cols = storage.getColumns(info.getSchema(), info.getTable());
+        }
 
         HashSet<String> imports = new HashSet<>();
         StringBuffer fields = new StringBuffer("");
@@ -50,9 +104,9 @@ public class Templated {
         cols.keySet().forEach(key -> {
             String className = cols.get(key);
             String type = Template.TYP_MAP.get(className);
-            String uKey = key.substring(0, 1).toUpperCase().concat(key.substring(1));
+            String uKey = upperName(key);
 
-            fields.append("private ")
+            fields.append("    private ")
                     .append(type).append(" ")
                     .append(key).append(";\n");
 
@@ -62,20 +116,109 @@ public class Templated {
 
             if (!className.startsWith("java.lang"))
                 imports.add("import ".concat(className).concat(";\n"));
-            else if (className.endsWith("Double") || className.endsWith("Float"))
+            else if (className.matches("java\\.lang\\.(?:Double|Float)"))
                 imports.add("import java.math.BigDecimal;");
         });
 
-        StringBuffer domain = new StringBuffer("");
+        StringBuffer ims = new StringBuffer();
+        imports.forEach(im -> ims.append(im));
 
-        imports.forEach(im -> domain.append(im));
-        domain.append("\n").append(fields)
-                .append("\n").append(gs);
+        String domain = Template.getDomainTemplate()
+                // insert imports
+                .replaceFirst("\\$import\n", ims.toString())
+                // insert package path
+                .replaceFirst("\\$pkg", getPackage(DMA))
+                // insert fields
+                .replaceFirst(" *\\$field\n", fields.toString())
+                // insert getters and setters
+                .replaceFirst(" *\\$get&set\n", gs.toString())
+                // insert class name
+                .replaceAll("\\$name", upperName(info.getName()))
+                // insert current time
+                .replaceFirst("\\$date", currentTime());
 
-        return domain.toString();
+        return domain;
     }
 
-    protected static class Template {
+    String templatedXmlMapper(Connection conn) {
+        if (cols == null) {
+            SimpleStorage storage = new SimpleStorage(conn);
+            cols = storage.getColumns(info.getSchema(), info.getTable());
+        }
+
+        StringBuffer columns = new StringBuffer();
+        StringBuffer insert = new StringBuffer();
+        StringBuffer update = new StringBuffer();
+
+        cols.keySet().forEach(key -> {
+            String col = key.toLowerCase();
+            columns.append(col).append(",");
+            insert.append("#{").append(col).append("},");
+            update.append("            ").append(col)
+                    .append("=#{").append(col).append("},\n");
+        });
+
+        String mapper = Template.getXmlMapperTemplate()
+                // insert class name
+                .replaceAll("\\$name", upperName(info.getName()))
+                // insert lower case name
+                .replaceAll("\\$lname", info.getName())
+                // replace table name
+                .replaceAll("\\$table", info.getTable())
+                // replace domain reference
+                .replaceAll("\\$domain", getPackage(DMA).concat(".")
+                        .concat(upperName(info.getName())))
+                .replaceAll("\\$cols", columns.toString().replaceFirst(",$", ""))
+                .replaceAll("\\$insert", insert.toString().replaceFirst(",$", ""))
+                .replaceAll(" *\\$update\n", update.toString().replaceFirst(",$", ""));
+        return mapper;
+    }
+
+    private String getPackage(TYPE type) {
+        String pkg = info.getBasePackage();
+        if (pkg == null)
+            pkg = "";
+        else if (!pkg.endsWith("."))
+            pkg = pkg.concat(".");
+
+        switch (type) {
+            case SER:
+                return pkg.concat(info.getServicePkg());
+            case CON:
+                return pkg.concat(info.getControllerPkg());
+            case DAO:
+                return pkg.concat(info.getDaoPkg());
+            case DMA:
+                return pkg.concat(info.getDomainPkg());
+            case MAP:
+                if (GenerInfo.MAPPER_TYP.XML.equals(info.getMapperType()))
+                    return null;
+                return pkg.concat(info.getMapperPkg());
+            default:
+                return null;
+        }
+    }
+
+    private String upperName(String name) {
+        return name.substring(0, 1).toUpperCase()
+                .concat(name.substring(1));
+    }
+
+    private static final SimpleDateFormat DT_FMT =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private String currentTime() {
+        return DT_FMT.format(new Date());
+    }
+
+    enum TYPE {
+        SER, // service
+        CON, // controller
+        DAO, // dao
+        DMA, // persistence
+        MAP  // mapper
+    }
+
+    private static class Template {
         private static final Logger L = LoggerFactory.getLogger(Template.class);
 
         static final HashMap<String, String> TYP_MAP = new HashMap<>();
@@ -93,6 +236,8 @@ public class Templated {
         private static String service;
         private static String controller;
         private static String dao;
+        private static String domain;
+        private static String xmlMapper;
 
         private static synchronized String read(String tplName) {
             String path = "/META-INF/".concat(tplName);
@@ -144,13 +289,19 @@ public class Templated {
             return dao;
         }
 
+        static String getDomainTemplate() {
+            if (domain == null)
+                domain = read("domain_tpl");
+            return domain;
+        }
+
         private static final String GET_SET =
-                "public $type get$uname() {\n".concat(
-                "    return $name;\n").concat(
-                "}\n\n").concat(
-                "public void set$uname($type $name) {\n").concat(
-                "    this.$name = $name;\n").concat(
-                "}\n\n");
+                "    public $type get$uname() {\n".concat(
+                "        return $name;\n").concat(
+                "    }\n\n").concat(
+                "    public void set$uname($type $name) {\n").concat(
+                "        this.$name = $name;\n").concat(
+                "    }\n\n");
         /**
          * Getter and setter methods template
          *
@@ -158,6 +309,12 @@ public class Templated {
          */
         static String gstter() {
             return GET_SET;
+        }
+
+        static String getXmlMapperTemplate() {
+            if (xmlMapper == null)
+                xmlMapper = read("mapper_xml_tpl");
+            return xmlMapper;
         }
     }
 }
