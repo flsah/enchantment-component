@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static com.enchantment.genbatis.core.GenerInfo.MAPPER_TYP.ANNOTATION;

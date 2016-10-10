@@ -37,10 +37,9 @@ public class GeneratorTest {
         info = new GenerInfo();
         info.setBasePackage("com.enchantment.eaas");
         info.setSchema("eaas");
-        info.setTable("t_group");
+        info.setTable("t_role");
         info.setTablePrefix("t_");
         info.setMapperPkg("resouces.mapper");
-
     }
 
     @After
