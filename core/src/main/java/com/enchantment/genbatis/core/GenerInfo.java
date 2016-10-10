@@ -205,4 +205,16 @@ public class GenerInfo {
         }
         return name;
     }
+
+    private String upperName;
+    public String getUpperName() {
+        if (upperName != null)
+            return upperName;
+
+        getName();
+        upperName = name.substring(0, 1).toUpperCase()
+                .concat(name.substring(1));
+
+        return upperName;
+    }
 }

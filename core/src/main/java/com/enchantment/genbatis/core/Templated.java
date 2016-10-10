@@ -38,12 +38,12 @@ class Templated {
                 .replaceFirst("\\$pkg", getPackage(SER))
                 // insert dao import
                 .replaceFirst("\\$dao", getPackage(DAO).concat(".")
-                        .concat(upperName(info.getName())).concat("DAO"))
+                        .concat(info.getUpperName()).concat("DAO"))
                 // insert domain import
                 .replaceFirst("\\$domain", getPackage(DMA).concat(".")
-                        .concat(upperName(info.getName())))
+                        .concat(info.getUpperName()))
                 // insert class name
-                .replaceAll("\\$name", upperName(info.getName()))
+                .replaceAll("\\$name", info.getUpperName())
                 // insert current time
                 .replaceFirst("\\$date", currentTime())
                 // insert lower case name
@@ -56,12 +56,12 @@ class Templated {
                 .replaceFirst("\\$pkg", getPackage(CON))
                 // insert service import
                 .replaceFirst("\\$service", getPackage(SER).concat(".")
-                        .concat(upperName(info.getName())).concat("Service"))
+                        .concat(info.getUpperName()).concat("Service"))
                 // insert domain import
                 .replaceFirst("\\$domain", getPackage(DMA).concat(".")
-                        .concat(upperName(info.getName())))
+                        .concat(info.getUpperName()))
                 // insert class name
-                .replaceAll("\\$name", upperName(info.getName()))
+                .replaceAll("\\$name", info.getUpperName())
                 // insert current time
                 .replaceFirst("\\$date", currentTime())
                 // insert lower case name
@@ -74,9 +74,9 @@ class Templated {
                 .replaceFirst("\\$pkg", getPackage(DAO))
                 // insert domain import
                 .replaceFirst("\\$domain", getPackage(DMA).concat(".")
-                        .concat(upperName(info.getName())))
+                        .concat(info.getUpperName()))
                 // insert class name
-                .replaceAll("\\$name", upperName(info.getName()))
+                .replaceAll("\\$name", info.getUpperName())
                 // insert current time
                 .replaceFirst("\\$date", currentTime())
                 // insert lower case name
@@ -98,7 +98,8 @@ class Templated {
         cols.keySet().forEach(key -> {
             String className = cols.get(key);
             String type = Template.TYP_MAP.get(className);
-            String uKey = upperName(key);
+            String uKey = key.substring(0, 1).toUpperCase()
+                    .concat(key.substring(1));
 
             fields.append("    private ")
                     .append(type).append(" ")
@@ -127,7 +128,7 @@ class Templated {
                 // insert getters and setters
                 .replaceFirst(" *\\$get&set\n", gs.toString())
                 // insert class name
-                .replaceAll("\\$name", upperName(info.getName()))
+                .replaceAll("\\$name", info.getUpperName())
                 // insert current time
                 .replaceFirst("\\$date", currentTime());
     }
@@ -152,14 +153,14 @@ class Templated {
 
         return Template.getXmlMapperTemplate()
                 // insert class name
-                .replaceAll("\\$name", upperName(info.getName()))
+                .replaceAll("\\$name", info.getUpperName())
                 // insert lower case name
                 .replaceAll("\\$lname", info.getName())
                 // replace table name
                 .replaceAll("\\$table", info.getTable())
                 // replace domain reference
                 .replaceAll("\\$domain", getPackage(DMA).concat(".")
-                        .concat(upperName(info.getName())))
+                        .concat(info.getUpperName()))
                 .replaceAll("\\$cols", columns.toString().replaceFirst(",$", ""))
                 .replaceAll("\\$insert", insert.toString().replaceFirst(",$", ""))
                 .replaceAll(" *\\$update\n", update.toString().replaceFirst(",$", ""));
@@ -188,11 +189,6 @@ class Templated {
             default:
                 return null;
         }
-    }
-
-    private String upperName(String name) {
-        return name.substring(0, 1).toUpperCase()
-                .concat(name.substring(1));
     }
 
     private static final SimpleDateFormat DT_FMT =
@@ -236,6 +232,8 @@ class Templated {
                             break;
                         bufList.addElement(b);
                     }
+                    buf = null;
+                    buf = new byte[2048];
                 }
 
                 buf = null;

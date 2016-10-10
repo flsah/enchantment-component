@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import static com.enchantment.genbatis.core.Generator.TYPE.*;
+
 /**
  * Created by liushuang on 10/9/16.
  */
@@ -33,10 +35,11 @@ public class GeneratorTest {
         }
 
         info = new GenerInfo();
-        info.setBasePackage("com.enchanment.test");
+        info.setBasePackage("com.enchantment.eaas");
         info.setSchema("eaas");
         info.setTable("t_group");
         info.setTablePrefix("t_");
+        info.setMapperPkg("resouces.mapper");
 
     }
 
@@ -54,8 +57,9 @@ public class GeneratorTest {
     @Test
     public void genTest() {
         Generator g = new Generator(info);
+        g.setConn(conn);
         try {
-            g.gen();
+            g.gen(CON, SER, DAO, DMA, MAP);
         } catch (GenbatisException e) {
             e.printStackTrace();
         }

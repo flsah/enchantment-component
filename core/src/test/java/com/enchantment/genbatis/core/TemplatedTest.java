@@ -33,11 +33,10 @@ public class TemplatedTest {
         }
 
         info = new GenerInfo();
-        info.setBasePackage("com.enchanment.test");
+        info.setBasePackage("com.enchantment.eaas");
         info.setSchema("eaas");
         info.setTable("t_group");
         info.setTablePrefix("t_");
-        info.setMapperPkg("resouces.mapper");
 
     }
 
@@ -61,7 +60,7 @@ public class TemplatedTest {
         System.out.println(tpl);
     }
 
-//    @Test
+    @Test
     public void templatedControllerTest() {
         Templated tpd = new Templated(info);
 
@@ -84,7 +83,7 @@ public class TemplatedTest {
         System.out.println(tpl);
     }
 
-    @Test
+//    @Test
     public void templatedXmlMapperTest() {
         Templated tpd = new Templated(info);
         String tpl = tpd.templatedXmlMapper(conn);

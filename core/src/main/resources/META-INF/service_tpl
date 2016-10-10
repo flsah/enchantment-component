@@ -37,17 +37,15 @@ public class $nameService {
         return $lnameDAO.getList($lname);
     }
 
-    public boolean add$name($name $lname, final String cuid) {
+    public boolean add$name($name $lname) {
         $lname.setId(Utils.buildHashCode($lname));
         $lname.setStatus(STAT_INIT);
         $lname.setMdate(new Timestamp(System.currentTimeMillis()));
-        $lname.setMid(cuid);
         $lname.setOtype(OPER_N);
         return $lnameDAO.add($lname);
     }
 
-    public boolean update$name($name $lname, final String cuid) {
-        $lname.setMid(cuid);
+    public boolean update$name($name $lname) {
         return $lnameDAO.update($lname);
     }
 

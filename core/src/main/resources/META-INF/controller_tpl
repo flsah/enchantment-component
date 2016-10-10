@@ -7,9 +7,12 @@ import $service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.utils.List;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 import static com.enchantment.eaas.Constants.RESPONSE_STATUS_FAL;
 import static com.enchantment.eaas.Constants.RESPONSE_STATUS_SUC;
@@ -20,7 +23,7 @@ import static com.enchantment.eaas.Constants.RESPONSE_STATUS_SUC;
  * Created by genbatis on $date.
  */
 @RestController
-@RequestMapping(value = "/$ver/$lname", produces = "application/json")
+@RequestMapping(value = "/v1/$lname", produces = "application/json")
 public class $nameController {
     private static final Logger L = LoggerFactory.getLogger($nameController.class);
 
@@ -59,7 +62,6 @@ public class $nameController {
     /**
      * Select $lname information by conditions
      *
-     * @param id $lname identity
      * @return $lname information
      */
     @RequestMapping(value = "/gets", method = RequestMethod.POST)
@@ -83,13 +85,12 @@ public class $nameController {
      * <p>Request method is <code>PUT</code></p>
      *
      * @param $lname new $lname information
-     * @param cuid current $lname id
      * @return Response entity which contains response data and status
      */
     @RequestMapping(value = "/add", method = RequestMethod.PUT)
     public ResponseEntity $lnameAdd(@RequestBody $name $lname) {
         ResponseEntity entity = new ResponseEntity();
-        if (service.add$name($lname, cuid)) {
+        if (service.add$name($lname)) {
             entity.setStatus(RESPONSE_STATUS_SUC);
         } else {
             entity.setStatus(RESPONSE_STATUS_FAL);
@@ -105,8 +106,14 @@ public class $nameController {
      * @return true if modify successfully, otherwise false
      */
     @RequestMapping(value = "/mod", method = RequestMethod.PUT)
-    public boolean $lnameMod($name $lname) {
-        return service.update$name($lname);
+    public ResponseEntity $lnameMod($name $lname) {
+        ResponseEntity entity = new ResponseEntity();
+        if (service.update$name($lname)) {
+            entity.setStatus(RESPONSE_STATUS_SUC);
+        } else {
+            entity.setStatus(RESPONSE_STATUS_FAL);
+        }
+        return entity;
     }
 
     /**
@@ -117,8 +124,14 @@ public class $nameController {
      * @return true if delete successfully, otherwise false
      */
     @RequestMapping(value = "/del/{id}", method = RequestMethod.DELETE)
-    public boolean $lnameDel(@PathVariable("id") String id) {
-        return service.remove$name(id);
+    public ResponseEntity $lnameDel(@PathVariable("id") String id) {
+        ResponseEntity entity = new ResponseEntity();
+        if (service.remove$name(id)) {
+            entity.setStatus(RESPONSE_STATUS_SUC);
+        } else {
+            entity.setStatus(RESPONSE_STATUS_FAL);
+        }
+        return entity;
     }
 
     /**
@@ -129,7 +142,13 @@ public class $nameController {
      * @return true if delete successfully, otherwise false
      */
     @RequestMapping(value = "/dels", method = RequestMethod.DELETE)
-    public boolean $lnameDel(List<String> ids) {
-        return service.remove$names(ids);
+    public ResponseEntity $lnameDel(List<String> ids) {
+        ResponseEntity entity = new ResponseEntity();
+        if (service.remove$names(ids)) {
+            entity.setStatus(RESPONSE_STATUS_SUC);
+        } else {
+            entity.setStatus(RESPONSE_STATUS_FAL);
+        }
+        return entity;
     }
 }
